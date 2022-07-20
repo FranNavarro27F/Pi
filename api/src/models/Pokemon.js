@@ -17,7 +17,7 @@ module.exports = (sequelize) => {
       allowNull: false,
     },
     hp:{
-      type: DataTypes.FLOAT,
+      type: DataTypes.INTEGER,
     },
     attack:{
       type: DataTypes.INTEGER,
@@ -37,6 +37,11 @@ module.exports = (sequelize) => {
     img:{
       type: DataTypes.STRING,
     },
+    comesFromBd:{
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      allowNull: false,
+    }
 
   });
 };
