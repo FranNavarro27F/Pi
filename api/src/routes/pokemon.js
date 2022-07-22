@@ -12,6 +12,7 @@ function EstractorInfoPokemon (dataPoke){
     }
 }
 
+
 function EstractorInfoPokemonToda (dataPoke){
     return{
         name: dataPoke.name,
@@ -28,32 +29,27 @@ function EstractorInfoPokemonToda (dataPoke){
 }
 
 
-
 let getPokemonsApi= async (name)=> {
 
      if(name){
-        const {data}= await axios.get(`https://pokeapi.co/api/v2/pokemon/${name}`)
+        const {data}= await axios.get(`https://pokeapi.co/api/v2/pokemon/${name}`);
         return EstractorInfoPokemon(data);
      }
-
-     const {data}= await axios.get("https://pokeapi.co/api/v2/pokemon?limit=40")
+     const {data}= await axios.get("https://pokeapi.co/api/v2/pokemon?limit=40");
      let ArrResults=data.results;
-        
-     let promPoke=await Promise.all( ArrResults.map(cur => axios.get(cur.url)) )
-
-     let info40limpia= promPoke.map(cur => cur.data) 
-        
-     let arrResult=[]
-
+     let promPoke=await Promise.all( ArrResults.map(cur => axios.get(cur.url)) );
+     let info40limpia= promPoke.map(cur => cur.data);
+     let arrResult=[];
      info40limpia.forEach( cur => arrResult.push( EstractorInfoPokemon(cur) ) )
         // console.log(arrResult)
      return arrResult;
-}
+};
+
 
 let getPokemonId = async (id)=>{
     if(id.includes("-")){
         const pokemonPorId=await Pokemon.findByPk(id, {
-            includes:{
+            include:{
                     model: Tipo,
                     attributes: ["name"]
                 }

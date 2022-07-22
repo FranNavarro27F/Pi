@@ -17,28 +17,23 @@ const router = Router();
 
 router.get("/pokemons", async (req, res, next)=>{
   const {name}= req.query;
-  
   try {
-    res.json(await modelPokemon.getPokemonsApi(name) )
-
+    res.json(await modelPokemon.getPokemonsApi(name) );
   } catch (error) {
-    
-    next (error)
+    next (error);
   }
-})
+});
+
 
 router.get("/pokemons/:id", async (req, res, next)=>{
   const {id}= req.params;
-  
   try {
-    
-    res.json(await modelPokemon.getPokemonId(id) )
-
+    res.json(await modelPokemon.getPokemonId(id) );
   } catch (error) {
-    
-    next (error)
+    next (error);
   }
-})
+});
+
 
 router.get("/tipo",async (req, res, next)=>{
   try {
@@ -48,9 +43,9 @@ router.get("/tipo",async (req, res, next)=>{
   }
 })
 
+
 router.post("/pokemons", async (req, res, next)=>{
   const {name,img,tipo,hp,attack,defense,speed,height,weight}=req.body;
-
   try {
     let newPokemonDB= await Pokemon.create({
       name,
@@ -61,15 +56,15 @@ router.post("/pokemons", async (req, res, next)=>{
       speed,
       height,
       weight,
+      tipo
     })
     await newPokemonDB.addTipos(tipo)
-    res.json(newPokemonDB)
-    
+    console.log("soy el rty")
+    res.status(200).send(newPokemonDB)
   } catch (error) {
-    next(error);
+    console.log("soy el catch")
+      next(error);
   }
-
-  
 })
 
 
