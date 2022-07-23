@@ -15,18 +15,20 @@ const router = Router();
 // Ejemplo: router.use('/auth', authRouter);
 
 
+
 router.get("/pokemons", async (req, res, next)=>{
-  const {name}= req.query;
+  let {name}= req.query;
   try {
-    res.json(await modelPokemon.getPokemonsApi(name) );
+    res.json(await modelPokemon.joinDeGets(name) );
   } catch (error) {
     next (error);
   }
 });
 
 
+
 router.get("/pokemons/:id", async (req, res, next)=>{
-  const {id}= req.params;
+  let {id}= req.params;
   try {
     res.json(await modelPokemon.getPokemonId(id) );
   } catch (error) {
@@ -45,8 +47,11 @@ router.get("/tipo",async (req, res, next)=>{
 
 
 router.post("/pokemons", async (req, res, next)=>{
-  const {name,img,tipo,hp,attack,defense,speed,height,weight}=req.body;
+  let {name,img,tipo,hp,attack,defense,speed,height,weight}=req.body;
   try {
+    name= name.toLowerCase()
+    // name= name[0].toLocaleUpperCase()+name.slice(1);
+
     let newPokemonDB= await Pokemon.create({
       name,
       img,
@@ -55,14 +60,12 @@ router.post("/pokemons", async (req, res, next)=>{
       defense,
       speed,
       height,
-      weight,
-      tipo
+      weight
     })
-    await newPokemonDB.addTipos(tipo)
-    console.log("soy el rty")
-    res.status(200).send(newPokemonDB)
+    console.log(newPokemonDB)
+    await newPokemonDB.addTipos(tipo);
+    res.json(newPokemonDB);
   } catch (error) {
-    console.log("soy el catch")
       next(error);
   }
 })
