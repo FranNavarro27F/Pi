@@ -17,14 +17,19 @@ const router = Router();
 
 
 router.get("/pokemons", async (req, res, next)=>{
-  let {name}= req.query;
+  
   try {
-    res.json(await modelPokemon.joinDeGets(name) );
-  } catch (error) {
-    next (error);
-  }
-});
+    const {name}=req.query;
+    if(name){
+      res.json(await modelPokemon.findName(name))
+    }else{
+      res.json(await modelPokemon.getAllPokemons())
+    }
 
+  } catch (error) { 
+    next(error)
+  }
+})
 
 
 router.get("/pokemons/:id", async (req, res, next)=>{

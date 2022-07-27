@@ -28,75 +28,112 @@ function EstractorInfoPokemonToda (dataPoke){
     }
 };
 
+// const getPokemonsDb= async ()=> {
+//     let TodosDeDb = await Pokemon.findAll({
+//          include: {
+//          model: Tipo,
+//          attributes: ["name"],
+//          through:{
+//             attributes:[]
+//          }
+//         }
+//     })
 
-const getPokemonsApi= async ()=> {
-     const {data}= await axios.get("https://pokeapi.co/api/v2/pokemon?limit=40");
-     let ArrResults=data.results;
-     let promPoke=await Promise.all( ArrResults.map(cur => axios.get(cur.url)) );
-     let info40limpia= promPoke.map(cur => cur.data);
-     let arrResult=[];
-     info40limpia.forEach( cur => arrResult.push( EstractorInfoPokemon(cur) ) )
-    //  console.log(arrResult)
-     return arrResult;
-};
-
-
-const getPokemonsDb= async ()=> {
-    let TodosDeDb = await Pokemon.findAll({
-         include: {
-         model: Tipo,
-         attributes: ["name"],
-         through:{
-            attributes:[]
-         }
+const getAllPokemons=async()=>{
+    let petiBd= await Pokemon.findAll({
+        include: {
+            model: Tipo,
+            attributes: ["name"],
+            through:{
+                attributes:[]
+            }
         }
     })
-    // console.log(TodosDeDb)pokemon y extras
-
-    if(TodosDeDb.length > 0){
-        const TodosDeDbMapeados= TodosDeDb.map(cur => cur.dataValues);
-        // console.log(TodosDeDbMapeados);
-        return TodosDeDbMapeados;
-    }
-};
-
-
-
-const joinDeGets= async (name)=>{
-    let api1=await getPokemonsApi();
-    let db1=await getPokemonsDb();
-   
-    let db2= db1.map(cur=> {
-        return{
-            name: cur.name,
-            img: cur.img,
-            type: cur.tipos.map(cur=> cur.name)
+    let petiBdFilt= petiBd.map(cur=>{
+        return {
+            name: cur.dataValues.name,
+            img:cur.dataValues.img,
+            type: cur.dataValues.tipos.map(cur=> cur.name)
         }
     })
-    let concatenados=api1.concat(db2);
     
-    if(name){
-        let findName=concatenados.filter(cur=> cur.name.toLowerCase() === name.toLowerCase());
-        if(findName.length > 0){
-            return findName;
-        }else{
-            return "El nombre no se encontro";
-        }
-    }else{
-        return concatenados;
+    /////////////
+
+    let{data}= await axios.get("https://pokeapi.co/api/v2/pokemon?limit=40")
+    let urls= data.results.map(cur=> cur.url);
+    let arrPokes=[];
+   
+    for(let i=0; i< urls.length;i++){
+        let{data}=await axios.get(urls[i])
+        arrPokes.push({
+            name: data.name,
+            img: data.sprites.other.dream_world.front_default,
+            type: data.types.map(cur=> cur.type.name)
+        })
     }
-};
+  
+   let concatenados=arrPokes.concat(petiBdFilt)
+    return concatenados; 
+}
+
+
+const findName=async(name)=>{
+   const nameBd= await Pokemon.findAll({
+        where: {
+            name: name
+        },
+        include: {
+            model: Tipo,// ojo aca
+            attributes: ["name"],
+            through:{
+                attributes:[]
+            }
+        }
+   })
+   
+   if(nameBd.length > 0){
+    let  pokeBd= {
+        name:nameBd[0].dataValues.name,
+        img:nameBd[0].dataValues.img,
+        type:nameBd[0].dataValues.tipos.map(cur=> cur.name)
+      }
+      console.log(pokeBd)
+      return pokeBd;
+   }else{
+    let petApi= await axios.get(`https://pokeapi.co/api/v2/pokemon/${name}`)
+    let pokeApi={
+        name:petApi.data.name,
+        img:petApi.data.sprites.other.dream_world.front_default,
+        type:petApi.data.types.map(cur=> cur.type.name)
+    }
+    return pokeApi;
+   }
+}
+
 
 
 const getPokemonId = async (id)=>{
     if(id.includes("-")){
-        const pokemonPorId=await Pokemon.findByPk(id, {
-            includegi:{
+        let pokemonPorId=await Pokemon.findByPk(id, {
+            include:{
                     model: Tipo,
                     attributes: ["name"]
                 }
         })
-        return pokemonPorId;
+        let fTipos={
+           
+                name:pokemonPorId.name,
+                img:pokemonPorId.img,
+                hp:pokemonPorId.hp,
+                attack:pokemonPorId.attack,
+                defense:pokemonPorId.defense,
+                speed: pokemonPorId.speed,
+                height:pokemonPorId.height,
+                weight:pokemonPorId.weight,
+                type:pokemonPorId.tipos.map(cur=> cur.name)
+                
+        }
+        return fTipos;
     }else{
         const {data}= await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`)
         return EstractorInfoPokemonToda(data)
@@ -107,7 +144,8 @@ const getPokemonId = async (id)=>{
 
 
 module.exports={
-    getPokemonsApi,
+    findName,
+    getAllPokemons,
     getPokemonId,
-    joinDeGets
+    
 }
