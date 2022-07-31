@@ -1,0 +1,16 @@
+.fondo {
+    padding: 6%;
+    background-image: url("../img/landing1.jpg");
+    height: 100vh;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+   
+  }
+  #buttos-landing{
+    margin: 100px;
+    padding: 10px 65px;
+  
+  }
